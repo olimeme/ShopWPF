@@ -52,6 +52,7 @@ namespace NavigationDrawerPopUpMenu2
 
             code = randNumber;
         }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -135,6 +136,7 @@ namespace NavigationDrawerPopUpMenu2
                             }
                         }
                         if (currentCart.Products.Count > 0) buyButton.Visibility = Visibility.Visible;
+                        CartItems.Items.Clear();
                         foreach (var product in currentCart.Products)
                         {
                             var bc = new BrushConverter();
@@ -161,8 +163,8 @@ namespace NavigationDrawerPopUpMenu2
                                 Foreground = (Brush)bc.ConvertFrom("#EBB129"),
                                 TextAlignment = TextAlignment.Center,
                                 HorizontalAlignment = HorizontalAlignment.Center,
-                                Margin = new Thickness(230, 10, 0, 0),
-                                Width = 170,
+                                Margin = new Thickness(50, 10, 0, 0),
+                                Width = 290,
                                 Height = 90
                             };
                             var addToCartButton = new Button()
@@ -170,7 +172,7 @@ namespace NavigationDrawerPopUpMenu2
                                 Content = "Удалить",
                                 Height = 40,
                                 Width = 90,
-                                Margin = new Thickness(220, 10, 0, 0),
+                                Margin = new Thickness(250, 10, 0, 0),
                                 HorizontalAlignment = HorizontalAlignment.Right,
                                 Foreground = (Brush)bc.ConvertFrom("#3C464F"),
                                 Background = (Brush)bc.ConvertFrom("#EBB129"),
@@ -208,11 +210,11 @@ namespace NavigationDrawerPopUpMenu2
             }
         }
 
-
         private void CloseLoginPanel(object sender, RoutedEventArgs e)
         {
             LoginForm.Visibility = Visibility.Collapsed;
         }
+
         private void OpenLoginPanel(object sender, RoutedEventArgs e)
         {
             Cart.Visibility = Visibility.Collapsed;
@@ -333,7 +335,6 @@ namespace NavigationDrawerPopUpMenu2
                 }
             }
         }
-
 
         private void Withdraw(object sender, RoutedEventArgs e)
         {
@@ -504,7 +505,7 @@ namespace NavigationDrawerPopUpMenu2
 
         private void AddToCart(object sender, RoutedEventArgs e)
         {
-            int currentProductId = int.Parse((sender as Button).Name.ToString().Substring((sender as Button).Name.ToString().Length - 1));
+            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[^0-9.]", ""));
             int clientId = int.Parse(CurrentClientId.Text);
             using (var context = new ShopContext())
             {
@@ -518,7 +519,7 @@ namespace NavigationDrawerPopUpMenu2
 
         private void DeleteFromCart(object sender, RoutedEventArgs e)
         {
-            int currentProductId = int.Parse((sender as Button).Name.ToString().Substring((sender as Button).Name.ToString().Length - 1));
+            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[^0-9.]", ""));
             using (var context = new ShopContext())
             {
                 int currentId = int.Parse(CurrentClientId.Text);
@@ -562,11 +563,6 @@ namespace NavigationDrawerPopUpMenu2
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
-        }
-
-        private void buyButton_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

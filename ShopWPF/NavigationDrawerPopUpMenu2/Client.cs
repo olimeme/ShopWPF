@@ -10,13 +10,5 @@ namespace NavigationDrawerPopUpMenu2
         public string Login {get;set;}
         public string Password { get; set; }
         public virtual Cart Cart { get; set; }
-
-        public Client()
-        {
-            Cart = new Cart()
-            {
-                Products = new List<Product>()
-            };
-        }
     }
 }
