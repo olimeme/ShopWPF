@@ -17,12 +17,15 @@ using Twilio.Rest.Api.V2010.Account;
 
 namespace NavigationDrawerPopUpMenu2
 {
-    /// <summary>
-    /// Interação lógica para MainWindow.xam
-    /// </summary>
     public partial class MainWindow : Window
     {
         public string code = "";
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            Logout.Visibility = Visibility.Collapsed;
+        }
 
         private string PasswordGenerate(int length)
         {
@@ -37,9 +40,8 @@ namespace NavigationDrawerPopUpMenu2
             return builder.ToString();
         }
 
-        private void MessageSender(string number, string randNumber)
+        private void CodeSender(string number, string randNumber)
         {
-            // Find your Account Sid and Token at twilio.com/console
             const string accountSid = "AC46d729f9bab280d217192471bb510f0e";
             const string authToken = "9a4d673663e8e6de021d0c5d8c0af348";
 
@@ -53,19 +55,26 @@ namespace NavigationDrawerPopUpMenu2
             code = randNumber;
         }
 
-        public MainWindow()
+        private void PasswordSender(string number, string password)
         {
-            InitializeComponent();
-            Logout.Visibility = Visibility.Collapsed;
+            const string accountSid = "AC46d729f9bab280d217192471bb510f0e";
+            const string authToken = "9a4d673663e8e6de021d0c5d8c0af348";
+
+            TwilioClient.Init(accountSid, authToken);
+            var message = MessageResource.Create(
+            body: "DONT SHOW THIS MESSAGE TO ANYONE! Your password is " + password,
+            from: new Twilio.Types.PhoneNumber("+19413000318"),
+            to: new Twilio.Types.PhoneNumber(number)
+            );
         }
 
-        private void ButtonOpenMenu_Click(object sender, RoutedEventArgs e)
+        private void ButtonOpenMenuClick(object sender, RoutedEventArgs e)
         {
             ButtonCloseMenu.Visibility = Visibility.Visible;
             ButtonOpenMenu.Visibility = Visibility.Collapsed;
         }
 
-        private void ButtonCloseMenu_Click(object sender, RoutedEventArgs e)
+        private void ButtonCloseMenuClick(object sender, RoutedEventArgs e)
         {
             ButtonOpenMenu.Visibility = Visibility.Visible;
             ButtonCloseMenu.Visibility = Visibility.Collapsed;
@@ -102,6 +111,7 @@ namespace NavigationDrawerPopUpMenu2
                 using (var context = new ShopContext())
                 {
                     var currentCart = context.Clients.Where(client => client.Id.ToString() == CurrentClientId.Text.ToString()).ToList()[0].Cart;
+                    CartItems.Items.Clear();
 
                     if (currentCart.Products.Count() == 0)
                     {
@@ -136,7 +146,6 @@ namespace NavigationDrawerPopUpMenu2
                             }
                         }
                         if (currentCart.Products.Count > 0) buyButton.Visibility = Visibility.Visible;
-                        CartItems.Items.Clear();
                         foreach (var product in currentCart.Products)
                         {
                             var bc = new BrushConverter();
@@ -151,46 +160,113 @@ namespace NavigationDrawerPopUpMenu2
                             {
                                 Width = 70,
                                 Height = 70,
-                                Source = new BitmapImage(new Uri(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/carrot.png")),
+                                Source = new BitmapImage(new Uri(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/" +product.SorucePath)),
                                 HorizontalAlignment = HorizontalAlignment.Left,
                                 Margin = new Thickness(10, 10, 0, 0)
 
                             };
-                            var productDescription = new TextBlock()
+                            var count = new TextBlock()
                             {
-                                Text = product.Price + " тенге\n" + product.Name,
+                                Text = product.Count.ToString(),
                                 FontSize = 20,
                                 Foreground = (Brush)bc.ConvertFrom("#EBB129"),
                                 TextAlignment = TextAlignment.Center,
                                 HorizontalAlignment = HorizontalAlignment.Center,
-                                Margin = new Thickness(50, 10, 0, 0),
-                                Width = 290,
+                                Margin = new Thickness(0, 25, 0, 0),
+                                Width = 50,
                                 Height = 90
+
+                            };
+                            var productDescription = new TextBlock()
+                            {
+                                Text = product.Price + " тенге(шт)\n" + product.Name,
+                                FontSize = 20,
+                                Foreground = (Brush)bc.ConvertFrom("#EBB129"),
+                                TextAlignment = TextAlignment.Center,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Margin = new Thickness(40, 10, 0, 0),
+                                Width = 370,
+                                Height = 90,
                             };
                             var addToCartButton = new Button()
                             {
                                 Content = "Удалить",
                                 Height = 40,
                                 Width = 90,
-                                Margin = new Thickness(250, 10, 0, 0),
+                                Margin = new Thickness(50, 10, 0, 0),
                                 HorizontalAlignment = HorizontalAlignment.Right,
                                 Foreground = (Brush)bc.ConvertFrom("#3C464F"),
                                 Background = (Brush)bc.ConvertFrom("#EBB129"),
                                 Name = "Button" + product.Id.ToString()
                             };
+                            var removeOneButton = new Button()
+                            {
+                                Content = "-",
+                                Height = 40,
+                                Width = 40,
+                                FontSize = 12,
+                                FontWeight = FontWeights.Bold,
+                                VerticalAlignment = VerticalAlignment.Center,
+                                HorizontalAlignment = HorizontalAlignment.Left,
+                                Margin = new Thickness(20, 0, 0, 0),
+                                Foreground = (Brush)bc.ConvertFrom("#3C464F"),
+                                Background = (Brush)bc.ConvertFrom("#EBB129"),
+                                Name = "Button" + product.Id.ToString()
+                            };
+                            var addOneButton = new Button()
+                            {
+                                Content = "+",
+                                Height = 40,
+                                Width = 40,
+                                FontSize = 12,
+                                FontWeight = FontWeights.Bold,
+                                VerticalAlignment = VerticalAlignment.Center,
+                                HorizontalAlignment = HorizontalAlignment.Left,
+                                Margin = new Thickness(0, 0, 0, 0),
+                                Foreground = (Brush)bc.ConvertFrom("#3C464F"),
+                                Background = (Brush)bc.ConvertFrom("#EBB129"),
+                                Name = "Button" + product.Id.ToString()
+                            };
                             addToCartButton.Click += DeleteFromCart;
+                            removeOneButton.Click += RemoveOne;
+                            addOneButton.Click += AddOne;
                             stackPanel.Children.Add(image);
                             stackPanel.Children.Add(productDescription);
+                            stackPanel.Children.Add(removeOneButton);
+                            stackPanel.Children.Add(count);
+                            stackPanel.Children.Add(addOneButton);
                             stackPanel.Children.Add(addToCartButton);
                             CartItems.Items.Add(stackPanel);
                             //GridMain.Children.Add(CartItems);
                         }
+
+                        var bc2 = new BrushConverter();
+                        var bill = new TextBlock()
+                        {
+                            Text = "Итого: " + GetAll(currentCart) + " тенге",
+                            Height = 40,
+                            FontSize = 20,
+                            Foreground = (Brush)bc2.ConvertFrom("#EBB129"),
+                            Margin = new Thickness(10, 20, 0, 0),
+                            Name = "bill"
+                        };
+                        CartItems.Items.Add(bill);
                     }
                 }
             }
         }
 
-        private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private string GetAll(Cart currentCart)
+        {
+            int bill = 0;
+            foreach (var product in currentCart.Products)
+            {
+                bill += product.TotalPrice;
+            }
+            return bill.ToString();
+        }
+
+        private void ListViewMenuSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UserControl usc = null;
             GridMain.Children.Clear();
@@ -309,19 +385,10 @@ namespace NavigationDrawerPopUpMenu2
                 }
                 else
                 {
-                    var clients = context.Set<Client>();
-                    clients.Add(new Client
-                    {
-                        Name = ClientFullNameRegistrate.Text.ToString(),
-                        Login = ClientLoginRegistrate.Text.ToString(),
-                        Password = ClientPasswordRegistrate.Password.ToString(),
-                        Phone = ClientNumberRegistrate.Text.ToString(),
-                    });
                     try
                     {
-
                         var number = PasswordGenerate(4);
-                        MessageSender(ClientNumberRegistrate.Text.ToString(), number);
+                        CodeSender(ClientNumberRegistrate.Text.ToString(), number);
                     }
                     catch (TwilioException error)
                     {
@@ -338,34 +405,51 @@ namespace NavigationDrawerPopUpMenu2
 
         private void Withdraw(object sender, RoutedEventArgs e)
         {
-
-            var config = PayPal.Api.ConfigManager.Instance.GetProperties();
-            var accessToken = new PayPal.Api.OAuthTokenCredential(config).GetAccessToken();
-            var apiContext = new PayPal.Api.APIContext(accessToken);
-
-            var payout = new Payout
+            using (var context = new ShopContext())
             {
-                sender_batch_header = new PayoutSenderBatchHeader
-                {
-                    sender_batch_id = "batch_" + Guid.NewGuid().ToString().Substring(0, 8),
-                    email_subject = "You have payment",
-                    recipient_type = PayoutRecipientType.EMAIL
-                },
+                var currentCart = context.Clients.Where(client => client.Id.ToString() == CurrentClientId.Text.ToString()).ToList()[0].Cart;
+                int totalSum = int.Parse(GetAll(currentCart));
 
-                items = new List<PayoutItem>
+                var config = PayPal.Api.ConfigManager.Instance.GetProperties();
+                var accessToken = new PayPal.Api.OAuthTokenCredential(config).GetAccessToken();
+                var apiContext = new PayPal.Api.APIContext(accessToken);
+
+                var money = double.Parse(Regex.Replace((CartItems.Items[CartItems.Items.Count - 1] as TextBlock).Text, "[A-Za-zА-Яа-я ]", "").Replace(':', ' '));
+                var payout = new Payout
+                {
+                    sender_batch_header = new PayoutSenderBatchHeader
+                    {
+                        sender_batch_id = "batch_" + Guid.NewGuid().ToString().Substring(0, 8),
+                        email_subject = "Вы купили товары на сумму " + money.ToString() + " тенге!",
+                        recipient_type = PayoutRecipientType.EMAIL
+                    },
+
+                    items = new List<PayoutItem>
             {
                 new PayoutItem
                 {
                     recipient_type = PayoutRecipientType.EMAIL,
-                    amount = new Currency { value="1.5", currency="USD" },
+                    amount = new Currency { value = (totalSum/380).ToString(), currency="USD" },
                     receiver = "vlad-057-buyer@mail.ru",
-                    note="Thank you",
+                    note="Спасибо, то покупаете в нашем магазине!",
                     sender_item_id = "item_1"
                 }
             }
-            };
+                };
 
-            var created = payout.Create(apiContext, false);
+                try
+                {
+                    var created = payout.Create(apiContext, false);
+                    MessageBox.Show("Спасибо за покупку!");
+                    currentCart.Products.Clear();
+                    context.SaveChanges();
+                    OpenCart(sender,e);
+                }
+                catch (PayPal.PaymentsException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
         }
 
         private void RegisterUserConfirm(object sender, RoutedEventArgs e)
@@ -377,6 +461,11 @@ namespace NavigationDrawerPopUpMenu2
                     if (ClientRegisterConfirm.Text.ToString() == code)
                     {
                         var clients = context.Set<Client>();
+                        var cart = new Cart
+                        {
+                            Products = new List<Product>()
+                        };
+                        context.Carts.Add(cart);
                         clients.Add(new Client
                         {
                             Name = ClientFullNameRegistrate.Text.ToString(),
@@ -384,7 +473,6 @@ namespace NavigationDrawerPopUpMenu2
                             Password = ClientPasswordRegistrate.Password.ToString(),
                             Phone = ClientNumberRegistrate.Text.ToString()
                         });
-
                         context.SaveChanges();
 
                         ClientNumberRegistrate.Text = "+";
@@ -406,7 +494,7 @@ namespace NavigationDrawerPopUpMenu2
         private void SendCodeMessage(object sender, RoutedEventArgs e)
         {
             var number = PasswordGenerate(4);
-            MessageSender(ClientNumberRegistrate.Text.ToString(), number);
+            CodeSender(ClientNumberRegistrate.Text.ToString(), number);
         }
 
         private void ShowGoodsByCategory(object sender, RoutedEventArgs e)
@@ -454,7 +542,7 @@ namespace NavigationDrawerPopUpMenu2
                     {
                         Width = 70,
                         Height = 70,
-                        Source = new BitmapImage(new Uri(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/carrot.png")),
+                        Source = new BitmapImage(new Uri(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/" +product.SorucePath)),
                         HorizontalAlignment = HorizontalAlignment.Left,
                         Margin = new Thickness(30, 30, 0, 0)
                     };
@@ -505,12 +593,22 @@ namespace NavigationDrawerPopUpMenu2
 
         private void AddToCart(object sender, RoutedEventArgs e)
         {
-            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[^0-9.]", ""));
+            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[A-Za-z ]", ""));
             int clientId = int.Parse(CurrentClientId.Text);
             using (var context = new ShopContext())
             {
+
                 var currentClient = context.Clients.Where(client => client.Id == clientId).ToList()[0];
                 var currentCart = currentClient.Cart;
+
+                var products = currentCart.Products.Where(product => product.Id == currentProductId).ToList();
+                if (products.Count > 0)
+                {
+                    products[0].Count++;
+                    context.SaveChanges();
+                    return;
+                }
+
                 var currentProduct = context.Products.Where(product => product.Id == currentProductId).ToList()[0];
                 currentCart.Products.Add(currentProduct);
                 context.SaveChanges();
@@ -519,7 +617,7 @@ namespace NavigationDrawerPopUpMenu2
 
         private void DeleteFromCart(object sender, RoutedEventArgs e)
         {
-            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[^0-9.]", ""));
+            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[A-Za-z ]", ""));
             using (var context = new ShopContext())
             {
                 int currentId = int.Parse(CurrentClientId.Text);
@@ -536,6 +634,66 @@ namespace NavigationDrawerPopUpMenu2
                         {
                             buyButton.Visibility = Visibility.Collapsed;
                         }
+                        break;
+                    }
+                    i++;
+                }
+
+                context.SaveChanges();
+                OpenCart(sender, e);
+            }
+        }
+
+        private void RemoveOne(object sender, RoutedEventArgs e)
+        {
+
+            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[A-Za-z ]", ""));
+            using (var context = new ShopContext())
+            {
+                int currentId = int.Parse(CurrentClientId.Text);
+                var currentCart = context.Clients.Where(client => client.Id == currentId).ToList()[0].Cart;
+
+                int i = 0;
+                foreach (var product in currentCart.Products)
+                {
+                    if (product.Id == currentProductId)
+                    {
+                        if (product.Count > 1)
+                        {
+                            product.Count--;
+                            break;
+                        }
+                        currentCart.Products.Remove(product);
+                        CartItems.Items.RemoveAt(i);
+                        if (CartItems.Items.Count == 0)
+                        {
+                            buyButton.Visibility = Visibility.Collapsed;
+                        }
+                        break;
+                    }
+                    i++;
+                }
+
+                context.SaveChanges();
+                OpenCart(sender, e);
+            }
+        }
+
+        private void AddOne(object sender, RoutedEventArgs e)
+        {
+
+            int currentProductId = int.Parse(Regex.Replace((sender as Button).Name.ToString(), "[A-Za-z ]", ""));
+            using (var context = new ShopContext())
+            {
+                int currentId = int.Parse(CurrentClientId.Text);
+                var currentCart = context.Clients.Where(client => client.Id == currentId).ToList()[0].Cart;
+
+                int i = 0;
+                foreach (var product in currentCart.Products)
+                {
+                    if (product.Id == currentProductId)
+                    {
+                        product.Count++;
                         break;
                     }
                     i++;
@@ -564,5 +722,33 @@ namespace NavigationDrawerPopUpMenu2
         {
             DragMove();
         }
+
+        private void ForgotPassword(object sender, RoutedEventArgs e)
+        {
+            LoginForm.Visibility = Visibility.Collapsed;
+            ForgotPasswordWindow.Visibility = Visibility.Visible;
+        }
+
+        private void ForgotPasswordConfirm(object sender, RoutedEventArgs e)
+        {
+            var login = ForgotPasswordTextBox.Text;
+            using (ShopContext context = new ShopContext())
+            {
+                var clientForgotPassword = context.Clients.Where(client => client.Login == login).ToList()[0];
+                var password = clientForgotPassword.Password;
+                var phoneNumber = clientForgotPassword.Phone;
+                try
+                {
+                    PasswordSender(phoneNumber, password);
+                }
+                catch(TwilioException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                ForgotPasswordTextBox.Text = "";
+                ForgotPasswordWindow.Visibility = Visibility.Collapsed;
+            }
+        }
     }
 }
+

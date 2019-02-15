@@ -699,3 +699,8 @@ C:\Users\МомбековА.CORP\Documents\GitHub\ShopWPF\ShopWPF\NavigationDraw
 C:\Users\МомбековА.CORP\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\obj\Debug\NavigationDrawerPopUpMenu2_MarkupCompile.lref
 C:\Users\МомбековА.CORP\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\obj\Debug\NavigationDrawerPopUpMenu2.pdb
 C:\Users\МомбековА.CORP\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\obj\Debug\MainWindow.g.cs
+C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\Debug\OpenSSL.PrivateKeyDecoder.dll
+C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\Debug\OpenSSL.X509Certificate2.Provider.dll
+C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\Debug\Newtonsoft.Json.pdb
+C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\Debug\OpenSSL.PrivateKeyDecoder.xml
+C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\Debug\OpenSSL.X509Certificate2.Provider.xml
