@@ -10,5 +10,6 @@ namespace NavigationDrawerPopUpMenu2
         public string Login {get;set;}
         public string Password { get; set; }
         public virtual Cart Cart { get; set; }
+        public Rights Rights { get; set; }
     }
 }

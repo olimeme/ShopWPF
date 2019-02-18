@@ -25,6 +25,7 @@ namespace NavigationDrawerPopUpMenu2
         {
             InitializeComponent();
             Logout.Visibility = Visibility.Collapsed;
+            RecordButton.Visibility = Visibility.Collapsed;
         }
 
         private string PasswordGenerate(int length)
@@ -266,26 +267,6 @@ namespace NavigationDrawerPopUpMenu2
             return bill.ToString();
         }
 
-        private void ListViewMenuSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            UserControl usc = null;
-            GridMain.Children.Clear();
-
-            switch (((ListViewItem)((ListView)sender).SelectedItem).Name)
-            {
-                case "ItemHome":
-                    usc = new UserControlHome();
-                    GridMain.Children.Add(usc);
-                    break;
-                case "ItemCreate":
-                    usc = new UserControlCreate();
-                    GridMain.Children.Add(usc);
-                    break;
-                default:
-                    break;
-            }
-        }
-
         private void CloseLoginPanel(object sender, RoutedEventArgs e)
         {
             LoginForm.Visibility = Visibility.Collapsed;
@@ -319,22 +300,23 @@ namespace NavigationDrawerPopUpMenu2
             using (var context = new ShopContext())
             {
                 var users = context.Clients.Where(client => client.Login == UserLogin.Text.ToString() && client.Password == UserPassword.Password.ToString()).ToList();
-                //if (users.Count() > 1)
-                //{
-                //    MessageBox.Show("Пользователь с таким Логином и Паролем уже зарегистрирован!");
-                //}
-                //else
                 if (!users.Any())
                 {
                     MessageBox.Show("Направильно введен логин или пароль");
                 }
                 else
                 {
+                    if(users[0].Rights == Rights.Admin)
+                        RecordButton.Visibility = Visibility.Visible;
+
                     LoginIfLogged.Text = users[0].Name;
+
                     CloseLoginPanel(sender, e);
+
                     Registrate.Visibility = Visibility.Collapsed;
                     Login.Visibility = Visibility.Collapsed;
                     Logout.Visibility = Visibility.Visible;
+
                     UserLogin.Text = "";
                     UserPassword.Password = "";
                     CurrentClientId.Text = users[0].Id.ToString();
@@ -344,13 +326,17 @@ namespace NavigationDrawerPopUpMenu2
 
         private void LogOutUser(object sender, RoutedEventArgs e)
         {
-            LoginIfLogged.Text = "";
+
             Registrate.Visibility = Visibility.Visible;
             Login.Visibility = Visibility.Visible;
             Logout.Visibility = Visibility.Collapsed;
+            RecordButton.Visibility = Visibility.Collapsed;
+
+            LoginIfLogged.Text = "";
             UserLogin.Text = "";
             UserPassword.Password = "";
             CurrentClientId.Text = "-1";
+
         }
 
         private void RegistrateUser(object sender, RoutedEventArgs e)
@@ -441,14 +427,22 @@ namespace NavigationDrawerPopUpMenu2
                 {
                     var created = payout.Create(apiContext, false);
                     MessageBox.Show("Спасибо за покупку!");
-                    currentCart.Products.Clear();
-                    context.SaveChanges();
-                    OpenCart(sender,e);
                 }
                 catch (PayPal.PaymentsException ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
+
+                context.Purchases.Add(new Purchase()
+                {
+                    PurchasedProducts = currentCart.Products.ToList(),
+                    TimeOfPurchase = DateTime.Now,
+                });
+
+                context.SaveChanges();
+                currentCart.Products.Clear();
+                context.SaveChanges();
+                OpenCart(sender,e);
             }
         }
 
@@ -471,7 +465,8 @@ namespace NavigationDrawerPopUpMenu2
                             Name = ClientFullNameRegistrate.Text.ToString(),
                             Login = ClientLoginRegistrate.Text.ToString(),
                             Password = ClientPasswordRegistrate.Password.ToString(),
-                            Phone = ClientNumberRegistrate.Text.ToString()
+                            Phone = ClientNumberRegistrate.Text.ToString(),
+                            Rights = Rights.Client
                         });
                         context.SaveChanges();
 
@@ -748,6 +743,20 @@ namespace NavigationDrawerPopUpMenu2
                 ForgotPasswordTextBox.Text = "";
                 ForgotPasswordWindow.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private List<Purchase> GetListOfPurchasesByDate(DateTime begin, DateTime end)
+        {
+            using (var context = new ShopContext())
+            {
+                return context.Purchases.Where(purchase => purchase.TimeOfPurchase < end && purchase.TimeOfPurchase > begin).ToList();
+            }
+        }
+
+        private void OpenRecordWindow(object sender, RoutedEventArgs e)
+        {
+            RecordWindow window = new RecordWindow();
+            window.Show();
         }
     }
 }

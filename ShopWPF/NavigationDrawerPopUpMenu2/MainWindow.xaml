@@ -140,6 +140,7 @@
                         <Button Content="Регистрация" x:Name="Registrate" Click="OpenRegistratePanel"/>
                         <Button Content="Выход" x:Name="Logout" Click="LogOutUser"/>
                         <Button Content="Корзина" x:Name="CartButton" Click="OpenCart"/>
+                        <Button Content="Отчет" x:Name="RecordButton" Click="OpenRecordWindow"/>
                     </StackPanel>
                 </materialDesign:PopupBox>
             </StackPanel>

@@ -19,7 +19,8 @@ namespace NavigationDrawerPopUpMenu2
                     Name = "Vlad Lebedev",
                     Password = "Dagad582#",
                     Phone = "+7011242693",
-                    Cart= new Cart()                    
+                    Cart= new Cart(),
+                    Rights = Rights.Admin
                 },
                 new Client()
                 {
@@ -27,7 +28,8 @@ namespace NavigationDrawerPopUpMenu2
                     Name = "Alibek Mombekov",
                     Password = "123",
                     Phone = "+77011007185",
-                    Cart= new Cart()
+                    Cart= new Cart(),
+                    Rights = Rights.Admin
                 }               
             });
             context.Products.AddRange(new List<Product>()
