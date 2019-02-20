@@ -9,6 +9,7 @@ namespace NavigationDrawerPopUpMenu2
         public Category Category { get; set; }
         public int Price { get; set; }
         public virtual ICollection<Cart> Carts { get; set; }
+        public virtual ICollection<Purchase> Purchases { get; set; }
         public int Count { get; set; } = 1;
         public int TotalPrice { get { return Price * Count; } set { } }
         public string SorucePath

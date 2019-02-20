@@ -24,20 +24,22 @@ namespace NavigationDrawerPopUpMenu2
             InitializeComponent();
         }
 
-        private List<Purchase> GetListOfPurchasesByDate(DateTime? begin, DateTime? end)
+        private List<Purchase> GetListOfPurchasesByDate(DateTime? begin, DateTime? end, ShopContext context)
         {
-            using (var context = new ShopContext())
-            {
-                return context.Purchases.Where(purchase => purchase.TimeOfPurchase < end && purchase.TimeOfPurchase > begin).ToList();
-            }
+            return context.Purchases.Where(purchase => purchase.TimeOfPurchase <= end && purchase.TimeOfPurchase >= begin).ToList();
         }
 
         private void ShowTable(object sender, RoutedEventArgs e)
         {
+            if (datePicker1.SelectedDate == null || datePicker2.SelectedDate == null)
+            {
+                MessageBox.Show("Пожалуйста, укажите время для отчета!");
+                return;
+            }
             using (var context = new ShopContext())
             {
 
-                var purchases = GetListOfPurchasesByDate(datePicker1.SelectedDate, datePicker2.SelectedDate);
+                var purchases = GetListOfPurchasesByDate(datePicker1.SelectedDate, datePicker2.SelectedDate, context);
                 List<SellingRecord> rows = new List<SellingRecord>(purchases.Count);
                 List<Product> allProducts = new List<Product>();
 
