@@ -702,3 +702,4 @@ C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\
 C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\bin\Debug\OpenSSL.X509Certificate2.Provider.xml
 C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\obj\Debug\RecordWindow.g.cs
 C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\obj\Debug\RecordWindow.baml
+C:\Users\Lenovo\Documents\GitHub\ShopWPF\ShopWPF\NavigationDrawerPopUpMenu2\obj\Debug\NavigationDrawerPopUpMenu2.csproj.ResolveComReference.cache

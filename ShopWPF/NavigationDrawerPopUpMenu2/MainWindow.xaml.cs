@@ -729,19 +729,26 @@ namespace NavigationDrawerPopUpMenu2
             var login = ForgotPasswordTextBox.Text;
             using (ShopContext context = new ShopContext())
             {
-                var clientForgotPassword = context.Clients.Where(client => client.Login == login).ToList()[0];
-                var password = clientForgotPassword.Password;
-                var phoneNumber = clientForgotPassword.Phone;
-                try
+                var clientForgotPassword = context.Clients.Where(client => client.Login == login);
+                if (!clientForgotPassword.Any())
+                    MessageBox.Show("Такого пользователя нет в системе!");
+                else
                 {
-                    PasswordSender(phoneNumber, password);
+                    var confirmedClient = clientForgotPassword.ToList()[0];
+                    var password = confirmedClient.Password;
+                    var phoneNumber = confirmedClient.Phone;
+                    try
+                    {
+                        PasswordSender(phoneNumber, password);
+                    }
+                    catch (TwilioException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        return;
+                    }
+                    ForgotPasswordTextBox.Text = "";
+                    ForgotPasswordWindow.Visibility = Visibility.Collapsed;
                 }
-                catch(TwilioException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                ForgotPasswordTextBox.Text = "";
-                ForgotPasswordWindow.Visibility = Visibility.Collapsed;
             }
         }
 
