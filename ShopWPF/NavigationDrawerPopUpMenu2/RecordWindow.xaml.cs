@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Excel = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Excel;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using System.IO;
 
 namespace NavigationDrawerPopUpMenu2
 {
@@ -88,19 +91,69 @@ namespace NavigationDrawerPopUpMenu2
             for (int j = 0; j < grid.Columns.Count; j++)
             {
                 Range myRange = (Range)sheet1.Cells[1, j + 1];
-                sheet1.Cells[1, j + 1].Font.Bold = true;
-                sheet1.Columns[j + 1].ColumnWidth = 15; 
                 myRange.Value2 = grid.Columns[j].Header;
             }
             for (int i = 0; i < grid.Columns.Count; i++)
             { 
-                for (int j = 0; j < grid.Items.Count; j++)
+                for (int j = 0; j < grid.Items.Count-1; j++)
                 {
-                    TextBlock b = grid.Columns[i].GetCellContent(grid.Items[j]) as TextBlock;
+                    var rows = grid.Items.SourceCollection as List<SellingRecord>;                    
                     Microsoft.Office.Interop.Excel.Range myRange = (Microsoft.Office.Interop.Excel.Range)sheet1.Cells[j + 2, i + 1];
-                    myRange.Value2 = b.Text;
+                    if(i == 0)myRange.Value2 = rows[j].CountOfProduct;
+                    else if (i == 1) myRange.Value2 = rows[j].NameOfProduct;
                 }
             }
+        }
+
+        private void ExportToPdf(object sender, RoutedEventArgs e)
+        {
+            Document document = new Document();
+            var date = DateTime.Now.Day.ToString() + "." + DateTime.Now.Month.ToString() + "." + DateTime.Now.Year.ToString() + "(" + DateTime.Now.Hour + ";" + DateTime.Now.Minute + ";" + DateTime.Now.Second+")";
+            PdfWriter writer = PdfWriter.GetInstance(document, new FileStream("e://Отчет" + date + ".pdf", FileMode.Create));
+            document.Open();
+            string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "ARIAL.TTF");
+            var baseFont = BaseFont.CreateFont(ttf, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            var font = new iTextSharp.text.Font(baseFont, iTextSharp.text.Font.DEFAULTSIZE, iTextSharp.text.Font.NORMAL);
+            PdfPTable table;
+            try
+            {
+                table = new PdfPTable(grid.Columns.Count);
+            }
+            catch(ArgumentException)
+            {
+                MessageBox.Show("Сначала выведите таблицу");
+                return;
+            }
+            PdfPRow row = null;
+            float[] widths = new float[grid.Columns.Count];
+            for (int i = 0; i < grid.Columns.Count; i++)
+            {
+                widths[i] = 4f;
+            }
+
+            table.SetWidths(widths);
+
+            table.WidthPercentage = 100;
+            PdfPCell cell = new PdfPCell(new Phrase("Products"));
+
+            cell.Colspan = grid.Columns.Count;
+
+            foreach (DataGridColumn c in grid.Columns)
+            {
+
+                table.AddCell(new Phrase(c.Header.ToString(), font));
+            }
+
+            foreach (var r in grid.Items.SourceCollection as List<SellingRecord>)
+            {
+                if (grid.Items.Count > 0)
+                {
+                    table.AddCell(new Phrase(r.CountOfProduct.ToString(), font));
+                    table.AddCell(new Phrase(r.NameOfProduct.ToString(), font));
+                }
+            }
+            document.Add(table);
+            document.Close();
         }
     }
 }
